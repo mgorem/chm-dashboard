@@ -1,4 +1,3 @@
-// store- global state
 import { compose, createStore, applyMiddleware } from "redux";
 import thunk from "redux-thunk";
 import firebase from "../../firebase";
@@ -11,14 +10,16 @@ import rootReducer from "./reducers";
 const rrfConfig = {
   userProfile: "users",
   useFirestoreForProfile: true, // Firestore for Profile instead of Realtime DB
+  attachAuthIsReady: true, // attaches auth is ready promise to store
 };
+
 if (typeof window !== "undefined") {
   const composeEnhancers =
     process.env.NODE_ENV === "development"
       ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose
       : compose;
 
-  const store = createStore(
+  export const store = createStore(
     rootReducer,
     composeEnhancers(
       reactReduxFirebase(firebase, rrfConfig),
@@ -27,5 +28,3 @@ if (typeof window !== "undefined") {
     )
   );
 }
-
-export default store;

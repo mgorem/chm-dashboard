@@ -36,7 +36,6 @@
     "react-redux": "^8.0.2",
     "react-redux-firebase": "^3.11.0",
     "redux": "^4.2.0",
-    "redux-firebase": "^0.3.3",
     "redux-firestore": "^1.0.0",
     "redux-thunk": "^2.4.1",
     "uuid": "^8.3.0",

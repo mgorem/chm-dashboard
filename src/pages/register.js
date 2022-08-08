@@ -14,7 +14,7 @@ import {
   Typography,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import * as actions from "../actions";
+import * as actions from "../store/actions";
 import { connect } from "react-redux";
 
 const Register = ({ signUp }) => {
@@ -114,6 +114,19 @@ const Register = ({ signUp }) => {
               label="Password"
               margin="normal"
               name="password"
+              onBlur={formik.handleBlur}
+              onChange={formik.handleChange}
+              type="password"
+              value={formik.values.password}
+              variant="outlined"
+            />
+            <TextField
+              error={Boolean(formik.touched.password && formik.errors.password)}
+              fullWidth
+              helperText={formik.touched.password && formik.errors.password}
+              label="Retype Password"
+              margin="normal"
+              name="confirmPassword"
               onBlur={formik.handleBlur}
               onChange={formik.handleChange}
               type="password"
