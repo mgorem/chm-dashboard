@@ -1,14 +1,12 @@
-// Import the functions you need from the SDKs you need
-import firebase, { initializeApp } from "firebase/app";
+import { firebase, initializeApp } from "firebase/app";
 import "firebase/firestore";
 import "firebase/auth";
 import { getAuth } from "firebase/auth";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { getFirestore } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: process.env.MACA_DASHBOARD_FIREBASE_KEY, // process.env.MACA_DASHBOARD_FIREBASE_KEY
+  apiKey: process.env.MACA_DASHBOARD_FIREBASE_KEY,
   authDomain: process.env.AUTH_DOMAIN,
   projectId: process.env.PROJECT_ID,
   storageBucket: process.env.STORAGE_BUCKET,
@@ -17,8 +15,9 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-export const app = initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
+
 export const auth = getAuth();
-// firebase.firestore();
+export const db = getFirestore(app);
 
 export default firebase;
