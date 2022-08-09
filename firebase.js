@@ -6,7 +6,7 @@ import { getFirestore } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: process.env.MACA_DASHBOARD_FIREBASE_KEY,
+  apiKey: "AIzaSyBzNO1QAE9CcItVFRR0fqcUVWd4hFiIIzY", // process.env.MACA_DASHBOARD_FIREBASE_KEY,
   authDomain: process.env.AUTH_DOMAIN,
   projectId: process.env.PROJECT_ID,
   storageBucket: process.env.STORAGE_BUCKET,

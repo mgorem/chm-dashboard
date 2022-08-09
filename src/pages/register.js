@@ -1,6 +1,8 @@
 import Head from "next/head";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import {
@@ -16,9 +18,17 @@ import {
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import * as actions from "../store/actions";
 import { connect } from "react-redux";
+import { signUpAction } from "../store/actions/authActions";
+import { useAuth } from "../hooks/useAuth";
 
 const Register = ({ signUp }) => {
   const router = useRouter();
+  const isAuthenticated = useAuth();
+
+  const dispatch = useDispatch();
+
+  const { showLoading, errorMessage } = useSelector((state) => state.auth);
+
   const formik = useFormik({
     initialValues: {
       email: "",
@@ -34,12 +44,18 @@ const Register = ({ signUp }) => {
       password: Yup.string().max(255).required("Password is required"),
       policy: Yup.boolean().oneOf([true], "This field must be checked"),
     }),
-    onSubmit: (values, { setSubmitting }) => {
-      // router.push("/");
-      signUp(values);
-      setSubmitting(false);
+    onSubmit: async (values) => {
+      const { email, firstName, lastName, password } = values;
+      const returnSecureToken = false;
+      dispatch(signUpAction(email, firstName, lastName, password, returnSecureToken, router));
     },
   });
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push("/");
+    }
+  }, [isAuthenticated, router]);
 
   return (
     <>
