@@ -7,6 +7,11 @@ import { Box, Button, Container, Grid, Link, TextField, Typography } from "@mui/
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { Facebook as FacebookIcon } from "../icons/facebook";
 import { Google as GoogleIcon } from "../icons/google";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { signUpAction } from "../store/actions/authActions";
+import { useAuth } from "../hooks/useAuth";
+
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firebase";
 import { useState } from "react";
@@ -15,6 +20,12 @@ import { async } from "@firebase/util";
 
 const Login = () => {
   const router = useRouter();
+
+  const isAuthenticated = useAuth();
+
+  const dispatch = useDispatch();
+
+  const { showLoading, errorMessage } = useSelector((state) => state.auth);
 
   const formik = useFormik({
     initialValues: {
@@ -25,26 +36,19 @@ const Login = () => {
       email: Yup.string().email("Must be a valid email").max(255).required("Email is required"),
       password: Yup.string().max(255).required("Password is required"),
     }),
-    onSubmit: (values, { setSubmitting }) => {
+    onSubmit: (values) => {
+      const { email, password } = values;
+      const returnSecureToken = true;
+      dispatch(signInAction(email, password, returnSecureToken, router));
       // router.push("/");
-      console.log(values);
-      // {({ isSubmitting, isValid}) => (
-
-      // )}
-      // await new Promise((resolve) => setTimeout(resolve, 1000));
-      // actions.resetForm();
-      // signInWithEmailAndPassword(auth, email, password)
-      //   .then((userCredential) => {
-      //     // Signed in
-      //     const user = userCredential.user;
-      //     console.log(user);
-      //   })
-      //   .catch((error) => {
-      //     const errorCode = error.code;
-      //     const errorMessage = error.message;
-      //   });
     },
   });
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push("/");
+    }
+  }, [isAuthenticated, router]);
 
   return (
     <>

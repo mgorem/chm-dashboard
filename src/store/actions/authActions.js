@@ -1,55 +1,96 @@
-import * as actions from "./actionTypes";
+import { authService } from "../../services/auth/AuthService";
+import { formateError } from "../../utils";
 
-// Sign up action creator
-export const signUp =
-  (data) =>
-  async (dispatch, getState, { getFirebase, getFirestore }) => {
-    const firebase = getFirebase();
-    const firestore = getFirestore();
-    dispatch({ type: actions.AUTH_START });
-    try {
-      const res = await firebase.auth().createUserWithEmailAndPassword(data.email, data.password);
-      console.log(res.user.uid);
+export const SIGNUP_CONFIRMED_ACTION = "[signup action] confirmed signup";
+export const SIGNUP_FAILED_ACTION = "[signup action] failed signup";
+export const LOGIN_CONFIRMED_ACTION = "[login action] confirmed login";
+export const LOGIN_FAILED_ACTION = "[login action] failed login";
+export const LOADING_TOGGLE_ACTION = "[Loading action] toggle loading";
+export const LOGOUT_ACTION = "[Logout action] logout action";
+export const LOADING_ON = "LOADING_ON";
+export const LOADING_OFF = "LOADING_OFF";
 
-      await firestore.collection("users").doc(res.user.uid).set({
-        firstName: data.firstName,
-        lastName: data.lastName,
+export const signUpAction =
+  (email, password, returnSecureToken = false, navigate) =>
+  (dispatch) => {
+    dispatch(setLoadingOn());
+
+    authService
+      .signup({ email, password, returnSecureToken })
+      .then((response) => {
+        dispatch(setLoadingOff());
+        dispatch(confirmedSignupAction(response));
+        navigate("/sign-in");
+      })
+      .catch((error) => {
+        const errorMessage = formateError(error.response.data);
+        dispatch(failedSignupAction(errorMessage));
+        dispatch(setLoadingOff());
       });
-      dispatch({ type: actions.AUTH_SUCCESS });
-    } catch (err) {
-      dispatch({ type: actions.AUTH_FAIL, payload: err.message });
-    }
-    dispatch({ type: actions.AUTH_END });
   };
 
-// Logout action creator
-export const signOut =
-  () =>
-  async (dispatch, getState, { getFirebase }) => {
-    const firebase = getFirebase();
-    try {
-      await firebase.auth().signOut();
-    } catch (err) {
-      console.log(err.message);
-    }
+export const signInAction =
+  (email, password, returnSecureToken = true, navigate) =>
+  (dispatch) => {
+    dispatch(setLoadingOn());
+
+    authService
+      .login({ email, password, returnSecureToken })
+      .then((response) => {
+        const { idToken, refreshToken, expiresIn, localId } = response.data;
+        authService.saveTokensInSessionStorage({
+          idToken,
+          refreshToken,
+          expiresIn,
+          localId,
+        });
+        dispatch(setLoadingOff());
+        dispatch(loginConfirmedAction(response.data));
+        navigate("/dashboard");
+      })
+      .catch((error) => {
+        const errorMessage = formateError(error.response.data);
+        dispatch(loginFailedAction(errorMessage));
+        dispatch(setLoadingOff());
+      });
   };
 
-// Login action creator
-export const signIn =
-  (data) =>
-  async (dispatch, getState, { getFirebase }) => {
-    const firebase = getFirebase();
-    dispatch({ type: actions.AUTH_START });
-    try {
-      await firebase.auth().signInWithEmailAndPassword(data.email, data.password);
-      dispatch({ type: actions.AUTH_SUCCESS });
-    } catch (err) {
-      dispatch({ type: actions.AUTH_FAIL, payload: err.message });
-    }
-    dispatch({ type: actions.AUTH_END });
+export function setLoadingOn() {
+  return {
+    type: LOADING_ON,
   };
+}
 
-// Clean up messages
-export const clean = () => ({
-  type: actions.CLEAN_UP,
-});
+export function setLoadingOff() {
+  return {
+    type: LOADING_OFF,
+  };
+}
+
+export function confirmedSignupAction(payload) {
+  return {
+    type: SIGNUP_CONFIRMED_ACTION,
+    payload,
+  };
+}
+
+export function failedSignupAction(message) {
+  return {
+    type: SIGNUP_FAILED_ACTION,
+    payload: message,
+  };
+}
+
+export function loginConfirmedAction(data) {
+  return {
+    type: LOGIN_CONFIRMED_ACTION,
+    payload: data,
+  };
+}
+
+export function loginFailedAction(data) {
+  return {
+    type: LOGIN_FAILED_ACTION,
+    payload: data,
+  };
+}
